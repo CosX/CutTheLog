@@ -1,0 +1,18 @@
+#cutlog{
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.btn-start{
+	text-align: center;
+	padding: 10px 20px;
+	color:#fff;
+	background: #26C281;
+	transition: 0.2s all;
+}
+.btn-start:hover{
+	background: #36D7B7;
+	cursor: pointer;
+}

@@ -1,0 +1,13 @@
+{
+	"name": "cut-the-log",
+	"version": "0.1.1",
+	"description": "A wood chopping game for mobile",
+	"author": "Karl Solgård <karl@karlsolgard.net>",
+	"main": "lib/main.js",
+	"repository": {
+		"type": "git",
+		"url": "http://karlsolgard.net/"
+	},
+	"analyze": true,
+	"license": "MIT"
+}
