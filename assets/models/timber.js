@@ -15,6 +15,7 @@ function Timber(level){
 	this.level = level;
 	this.markers = this.addmarkers();
 	this.lastmarker = this.getlastmarker();
+	this.woodchips = [];
 }
 
 Timber.prototype.drawtimber = function(ctx){
@@ -71,7 +72,36 @@ Timber.prototype.getlastmarker = function(){
 	return highestmarker;
 };
 
-Timber.prototype.reducewood = function(y){
-	this.length = this.initiallength - ((this.initiallength + this.timberposition) - (window.innerHeight + (y - window.innerHeight - 40)));
+Timber.prototype.reducewood = function(mouse){
+	var centeredPlacement = (window.innerWidth - 10) / 2;
+	var mouseY = mouse.center.y;
+	if(mouseY < (this.length + this.timberposition)){
+		var newlength = this.initiallength - ((this.initiallength + this.timberposition) - (window.innerHeight + (mouseY - window.innerHeight)));
+		var chipheight = this.length - newlength;
+		this.length = newlength;
+		var chip = {
+			height: chipheight,
+			velocity: mouse.velocity,
+			age: 0,
+			maxAge: 3000,
+			y: mouseY,
+			x: centeredPlacement
+		};
+		this.woodchips.push(chip);
+	}
+};
+
+Timber.prototype.animatewoodchips = function(ctx){
+	if(this.woodchips.length){
+		for (var i = 0; i < this.woodchips.length; i++) {
+			if(this.woodchips[i].age < this.woodchips[i].maxAge){
+				this.woodchips[i].age++;
+				this.woodchips[i].x -= this.woodchips[i].velocity * 8;
+				this.woodchips[i].y += this.velocity*frameRate*100;
+				ctx.fillStyle = '#CA6924';
+				ctx.fillRect(this.woodchips[i].x, this.woodchips[i].y, 200, this.woodchips[i].height);
+			}
+		}
+	}
 };
 exports.Timber = Timber;

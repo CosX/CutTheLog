@@ -20,19 +20,14 @@ function CanvasState(canvas){
 }
 
 CanvasState.prototype.cutTimber = function(e){
-	if(!this.timber.still){
+	if(!this.timber.still && (this.timber.level - this.cuts) > 0){
 		console.log("SWOOSH!");
 		this.cuts++;
-		var mouseY = e.center.y;
-		this.timber.reducewood(mouseY);
-		var marker = this.findClosestMarker(mouseY);
+		this.timber.reducewood(e);
+		var marker = this.findClosestMarker(e.center.y);
 		if(marker.difference < 80 && marker.difference > -80){
 			this.timber.markers[marker.index].ishit = true;
 			console.log("HIT!");
-		}
-		
-		if(this.cuts === this.timber.level){
-			this.calculateGame();
 		}
 	}
 };
@@ -89,13 +84,17 @@ CanvasState.prototype.clear = function() {
 CanvasState.prototype.draw = function() {
 	var self = this;
 	this.clear();
-	if(!this.timber.still && (this.timber.lastmarker.y < this.canvas.height)) {
+	if(!this.timber.still && (this.timber.timberposition < this.canvas.height)) {
 		this.timber.falling();
 	}
+	
+	if(this.timber.timberposition > this.canvas.height){
+		this.calculateGame();
+	}
+	this.timber.animatewoodchips(this.ctx);
 	this.timber.drawtimber(this.ctx);
 	this.timber.drawmarkers(this.ctx);
 	this.drawscore();
-	
 	window.requestAnimationFrame(function(){self.draw();});
 };
 
