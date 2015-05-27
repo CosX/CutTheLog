@@ -122,13 +122,27 @@ var Cd = 0.47;
 var rho = 1;
 var A = Math.PI * 15 * 15 / (10000);
 var frameRate = 1/40;
-
+var trees = [
+	{
+		name: "Oak",
+		color: "#B07B38"
+	},
+	{
+		name: "Firewood",
+		color: "#8A5817"
+	},
+	{
+		name: "Brownwood",
+		color: "#5F3500"
+	}
+];
 
 function Timber(level){
 	this.still = true;
 	this.length = _baselength + ((level * 100) * 10);
 	this.initiallength = this.length;
 	this.timberposition = Math.abs(this.length) * -1;
+	this.woodtype = trees[Math.floor(Math.random() * (trees.length - 1))];
 	this.velocity = 1;
 	this.level = level;
 	this.markers = this.addmarkers();
@@ -138,15 +152,17 @@ function Timber(level){
 
 Timber.prototype.drawtimber = function(ctx){
 	var centeredPlacement = (window.innerWidth - 10) / 2;
-	ctx.fillStyle = '#CA6924';
+	ctx.fillStyle = this.woodtype.color;
 	ctx.fillRect(centeredPlacement, this.timberposition, 200, this.length);
 };
 
 Timber.prototype.drawmarkers = function(ctx){
 	for (var i = 0; i < this.markers.length; i++) {
-		var centeredPlacement = (window.innerWidth - 10) / 2;
-		ctx.fillStyle = '#ECF0F1';
-		ctx.fillRect(centeredPlacement, this.markers[i].y, 200, 20);
+		if(!this.markers[i].ishit){
+			var centeredPlacement = (window.innerWidth - 10) / 2;
+			ctx.fillStyle = '#ECF0F1';
+			ctx.fillRect(centeredPlacement, this.markers[i].y, 200, 20);
+		}
 	}
 	
 };
@@ -197,14 +213,28 @@ Timber.prototype.reducewood = function(mouse){
 		var newlength = this.initiallength - ((this.initiallength + this.timberposition) - (window.innerHeight + (mouseY - window.innerHeight)));
 		var chipheight = this.length - newlength;
 		this.length = newlength;
+		
 		var chip = {
 			height: chipheight,
 			velocity: mouse.velocity,
 			age: 0,
-			maxAge: 3000,
+			maxAge: 80,
 			y: mouseY,
-			x: centeredPlacement
+			x: centeredPlacement,
+			bits: []
 		};
+		
+		for (var i = 0; i < Math.floor(Math.random() * 50) + 20; i++) {
+			chip.bits.push({
+				x: centeredPlacement, 
+				y: mouseY, 
+				velocity: mouse.velocity * (Math.random() * 1), 
+				height: 20, 
+				threshold: (Math.floor(Math.random() * 20) + 10), 
+				color: shadeColor('#FFCD8A', (Math.random() * (0.40 - 0.0200) + 0.0200).toFixed(4))
+			});
+		}
+		
 		this.woodchips.push(chip);
 	}
 };
@@ -216,12 +246,44 @@ Timber.prototype.animatewoodchips = function(ctx){
 				this.woodchips[i].age++;
 				this.woodchips[i].x -= this.woodchips[i].velocity * 8;
 				this.woodchips[i].y += this.velocity*frameRate*100;
-				ctx.fillStyle = '#CA6924';
+				ctx.fillStyle = this.woodtype.color;
 				ctx.fillRect(this.woodchips[i].x, this.woodchips[i].y, 200, this.woodchips[i].height);
+				this.animatechipsbits(ctx, this.woodchips[i].bits);
 			}
 		}
 	}
 };
+
+Timber.prototype.animatechipsbits = function(ctx, bits){
+	if(bits.length){
+		for (var i = 0; i < bits.length; i++) {
+			bits[i].x -= bits[i].velocity * 8;
+			bits[i].y += (this.velocity*frameRate*100) - bits[i].threshold;
+			ctx.fillStyle = bits[i].color;
+			ctx.fillRect(bits[i].x, bits[i].y, bits[i].height, bits[i].height);
+		}
+	}
+};
+
+function shadeColor(hex, lum) {
+
+	// validate hex string
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+
+	// convert to decimal and change luminosity
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
+}
 exports.Timber = Timber;
 },{}],4:[function(require,module,exports){
 //watchify assets/main.js -o bundle2.js -v
