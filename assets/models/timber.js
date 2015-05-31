@@ -1,21 +1,26 @@
+var Color = require("../lib/scripts/color.js").Color; 
 var _baselength = 100; 
 var _gravity = 9.81;
 var Cd = 0.47;
 var rho = 1;
 var A = Math.PI * 15 * 15 / (10000);
 var frameRate = 1/40;
+var marginpercent = 30;
 var trees = [
 	{
 		name: "Oak",
-		color: "#B07B38"
+		color: "#B07B38",
+		detail: "#895513"
 	},
 	{
 		name: "Firewood",
-		color: "#8A5817"
+		color: "#8A5817",
+		detail: "#613700"
 	},
 	{
 		name: "Brownwood",
-		color: "#5F3500"
+		color: "#5F3500",
+		detail: "#3B2100"
 	}
 ];
 
@@ -33,17 +38,19 @@ function Timber(level){
 }
 
 Timber.prototype.drawtimber = function(ctx){
-	var centeredPlacement = (window.innerWidth - 10) / 2;
+	var startplacement = (window.innerWidth / 100) * marginpercent;
+	var timberwidth = window.innerWidth - (startplacement * 2);
 	ctx.fillStyle = this.woodtype.color;
-	ctx.fillRect(centeredPlacement, this.timberposition, 200, this.length);
+	ctx.fillRect(startplacement, this.timberposition, timberwidth, this.length);
 };
 
 Timber.prototype.drawmarkers = function(ctx){
+	var startplacement = (window.innerWidth / 100) * marginpercent;
+	var timberwidth = window.innerWidth - (startplacement * 2);
 	for (var i = 0; i < this.markers.length; i++) {
 		if(!this.markers[i].ishit){
-			var centeredPlacement = (window.innerWidth - 10) / 2;
 			ctx.fillStyle = '#ECF0F1';
-			ctx.fillRect(centeredPlacement, this.markers[i].y, 200, 20);
+			ctx.fillRect(startplacement, this.markers[i].y, timberwidth, 20);
 		}
 	}
 	
@@ -89,7 +96,8 @@ Timber.prototype.getlastmarker = function(){
 };
 
 Timber.prototype.reducewood = function(mouse){
-	var centeredPlacement = (window.innerWidth - 10) / 2;
+	var startplacement = (window.innerWidth / 100) * marginpercent;
+	var timberwidth = window.innerWidth - (startplacement * 2);
 	var mouseY = mouse.center.y;
 	if(mouseY < (this.length + this.timberposition)){
 		var newlength = this.initiallength - ((this.initiallength + this.timberposition) - (window.innerHeight + (mouseY - window.innerHeight)));
@@ -102,18 +110,18 @@ Timber.prototype.reducewood = function(mouse){
 			age: 0,
 			maxAge: 80,
 			y: mouseY,
-			x: centeredPlacement,
+			x: startplacement,
 			bits: []
 		};
 		
 		for (var i = 0; i < Math.floor(Math.random() * 50) + 20; i++) {
 			chip.bits.push({
-				x: centeredPlacement, 
+				x: (startplacement + timberwidth) / 2, 
 				y: mouseY, 
 				velocity: mouse.velocity * (Math.random() * 1), 
 				height: 20, 
 				threshold: (Math.floor(Math.random() * 20) + 10), 
-				color: shadeColor('#FFCD8A', (Math.random() * (0.40 - 0.0200) + 0.0200).toFixed(4))
+				color: Color.shadeColor('#FFCD8A', (Math.random() * (0.40 - 0.0200) + 0.0200).toFixed(4))
 			});
 		}
 		
@@ -122,6 +130,8 @@ Timber.prototype.reducewood = function(mouse){
 };
 
 Timber.prototype.animatewoodchips = function(ctx){
+	var startplacement = (window.innerWidth / 100) * marginpercent;
+	var timberwidth = window.innerWidth - (startplacement * 2);
 	if(this.woodchips.length){
 		for (var i = 0; i < this.woodchips.length; i++) {
 			if(this.woodchips[i].age < this.woodchips[i].maxAge){
@@ -129,7 +139,7 @@ Timber.prototype.animatewoodchips = function(ctx){
 				this.woodchips[i].x -= this.woodchips[i].velocity * 8;
 				this.woodchips[i].y += this.velocity*frameRate*100;
 				ctx.fillStyle = this.woodtype.color;
-				ctx.fillRect(this.woodchips[i].x, this.woodchips[i].y, 200, this.woodchips[i].height);
+				ctx.fillRect(this.woodchips[i].x, this.woodchips[i].y, timberwidth, this.woodchips[i].height);
 				this.animatechipsbits(ctx, this.woodchips[i].bits);
 			}
 		}
@@ -147,23 +157,4 @@ Timber.prototype.animatechipsbits = function(ctx, bits){
 	}
 };
 
-function shadeColor(hex, lum) {
-
-	// validate hex string
-	hex = String(hex).replace(/[^0-9a-f]/gi, '');
-	if (hex.length < 6) {
-		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-	}
-	lum = lum || 0;
-
-	// convert to decimal and change luminosity
-	var rgb = "#", c, i;
-	for (i = 0; i < 3; i++) {
-		c = parseInt(hex.substr(i*2,2), 16);
-		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-		rgb += ("00"+c).substr(c.length);
-	}
-
-	return rgb;
-}
 exports.Timber = Timber;

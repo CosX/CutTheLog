@@ -1,4 +1,5 @@
 var Timber = require("./timber.js").Timber;
+var Background = require("./background.js").Background;
 var Hammer = require("../lib/scripts/hammer.min.js");
 function CanvasState(canvas){
  	var self = this;
@@ -7,27 +8,30 @@ function CanvasState(canvas){
   	this.height = canvas.height;
   	this.ctx = canvas.getContext('2d');
 	this.timber = [];
+	this.background = new Background();
 	this.cuts = 0;
+	this.lastcutpos = 0;
+	this.hitState = {active: false, age: 0, maxage: 30, didhit: false};
 	
 	canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
 	Hammer(canvas).on("swipeleft swiperight", function(e) {
 	    self.cutTimber(e);
 	});
 	 
- 	this.interval = 30;
-  	//setInterval(function() { self.draw(); }, self.interval);
   	window.requestAnimationFrame(function(){self.draw();});
 }
 
 CanvasState.prototype.cutTimber = function(e){
 	if(!this.timber.still && (this.timber.level - this.cuts) > 0){
-		console.log("SWOOSH!");
 		this.cuts++;
 		this.timber.reducewood(e);
 		var marker = this.findClosestMarker(e.center.y);
-		if(marker.difference < 80 && marker.difference > -80){
+		this.lastcutpos = e.center;
+		if(marker.difference < 80 && marker.difference > -80 && !this.timber.markers[marker.index].ishit){
 			this.timber.markers[marker.index].ishit = true;
-			console.log("HIT!");
+			this.resetHitState(true);
+		} else{
+			this.resetHitState(false);
 		}
 	}
 };
@@ -54,7 +58,7 @@ CanvasState.prototype.calculateGame = function(){
 	var didwin = true;
 	for (var i = 0; i < this.timber.markers.length; i++) {
 		if(!this.timber.markers[i].ishit){
-			didwin = false;
+			didwin = false; 
 			break;
 		}
 	};
@@ -71,9 +75,18 @@ CanvasState.prototype.reset = function(isnext){
 	}
 }; 
 
+CanvasState.prototype.resetHitState = function(didhit){
+	this.hitState = {
+		active: true, 
+		age: 0, 
+		maxage: 30, 
+		didhit: didhit
+	};
+};
+
 CanvasState.prototype.clear = function() {
 	this.canvas.width = window.innerWidth;
-	this.canvas.height = window.innerHeight - 40;
+	this.canvas.height = window.innerHeight;
 	
 	this.ctx.save();
 	this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -86,21 +99,35 @@ CanvasState.prototype.draw = function() {
 	this.clear();
 	if(!this.timber.still && (this.timber.timberposition < this.canvas.height)) {
 		this.timber.falling();
-	}
+	} 
 	
 	if(this.timber.timberposition > this.canvas.height){
 		this.calculateGame();
 	}
-	this.timber.animatewoodchips(this.ctx);
+	this.background.animateTiles(this.ctx);
 	this.timber.drawtimber(this.ctx);
+	this.timber.animatewoodchips(this.ctx);
 	this.timber.drawmarkers(this.ctx);
 	this.drawscore();
+	this.drawhitstate();
 	window.requestAnimationFrame(function(){self.draw();});
 };
-
+CanvasState.prototype.drawhitstate = function(){
+	if(this.hitState.active && this.hitState.age < this.hitState.maxage){
+		this.hitState.age++;
+		var text = this.hitState.didhit ? "HIT" : "MISS";
+		this.ctx.font = "32px helvetica";
+		this.ctx.fillStyle = this.hitState.didhit ? "#2ecc71" : "#e74c3c";
+		this.ctx.fillText(text+"!", this.canvas.width/2, this.lastcutpos.y - this.hitState.age);
+	}
+};
 CanvasState.prototype.drawscore = function(){
 	this.ctx.font = "32px helvetica";
-	this.ctx.fillStyle = "#264348";
+	this.ctx.fillStyle = "#fff";
+	this.ctx.shadowColor = '#000';
+	this.ctx.shadowBlur = 20;
+	this.ctx.shadowOffsetX = 0;
+	this.ctx.shadowOffsetY = 0;
 	this.ctx.fillText("LEVEL: " + this.timber.level, 10, 50);
 	this.ctx.fillText("CUTS LEFT: " + (this.timber.level - this.cuts), 10, 100);
 };
