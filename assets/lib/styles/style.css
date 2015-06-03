@@ -1,9 +1,14 @@
+html{
+	font-family: monospace;
+	font-size: 1.5vw;
+}
+
 body{
 	overflow:hidden;
 }
 #cutlog{
     top: 0;
-	margin-left: 10%;
+	margin-left: 0;
     bottom: 0;
     right: 0;
 }
@@ -35,6 +40,26 @@ body{
 
 .horizontal-bar ul li{
 	width: 100%;
+}
+
+.modal {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: #34495e;
+	padding: 10px 20px;
+	color: white;
+}
+.modal h1{
+	margin: 10px 0;
+}
+.modal .tip{
+	font-style: italic;
+	font-size: 0.8em;
+}
+.container{
+	padding: 0 0 15px;
 }
 .btn{
 	text-align: center;

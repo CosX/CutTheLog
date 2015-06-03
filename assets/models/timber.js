@@ -75,8 +75,12 @@ Timber.prototype.drop = function(){
 
 Timber.prototype.addmarkers = function(){
 	var markers = [];
+	
+	var markercount = 0;
+	var avgmarker = this.length / this.level;
 	for (var i = 0; i < this.level; i++) {
-		var markerposition = (Math.abs(this.length) * -1) + Math.floor(Math.random() * (this.length - 10)) + 10;
+		markercount += avgmarker;
+		var markerposition = (Math.abs(this.length) * -1) + Math.floor(Math.random() * (markercount - (markercount-avgmarker))) + (markercount-avgmarker);
 		markers[i] = {y: markerposition, ishit: false}; 
 	}
 	return markers;

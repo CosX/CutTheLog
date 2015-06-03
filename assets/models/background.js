@@ -1,5 +1,5 @@
 var Color = require("../lib/scripts/color.js").Color; 
-var basecolors = ["#189233", "#3AA752", "#57AB1C", "#79C344", "#9CCD47"];
+var basecolors = ["#189233"]; //, "#3AA752", "#57AB1C", "#79C344", "#9CCD47"
 var pixelconst = 60;
 
 function Background(){

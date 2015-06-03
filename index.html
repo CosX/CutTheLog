@@ -4,7 +4,7 @@
 		<link rel="stylesheet" href="assets/lib/styles/style.css"/>
 	</head>
 	<body>
-		<div class="horizontal-bar">
+<!--		<div class="horizontal-bar">
 			<div class="top">
 				<ul>
 					<li>s</li>
@@ -16,8 +16,21 @@
 					<li><div class="btn btn-start">S</div></li>
 				</ul>
 			</div>
-		</div>
+		</div>-->
 		<canvas id="cutlog"></canvas>
+		<div class="modal">
+			<div class="container">
+				<h1 class="header">Welcome!</h1>
+				<div class="detailed">
+					You are now at level <span class="lvl">1</span><br />
+					You have to hit <span class="cuts">1</span> markers to proceed to the next level.<br />
+					You have racked up <span class="points">0</span> points so far!
+				</div>
+				<p class="tip">Swipe to cut the log! Aim for the white markers. Good luck!</p>
+			</div>
+			<div class="btn btn-start">Drop the log!</div>
+		</div>
+		
 		<script src="bundle2.js"></script>
 	</body>
 </html>

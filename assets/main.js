@@ -8,4 +8,5 @@ s.addTimber(new Timber(level));
 
 document.getElementsByClassName("btn-start")[0].addEventListener("click", function(){
 	s.timber.drop();
+	document.getElementsByClassName("modal")[0].style.display = "none";
 });
